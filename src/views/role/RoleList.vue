@@ -64,8 +64,8 @@
 
 <script>
 import pick from 'lodash.pick'
-import { getRoleList, getPermissions } from '@/api/manage'
-import { actionToObject } from '@/utils/permissions'
+import { getRoleList } from '@/api/manage'
+// import { actionToObject } from '@/utils/permissions'
 import { baseMixin } from '@/store/app-mixin'
 
 export default {
@@ -143,6 +143,9 @@ export default {
       })
     },
     loadPermissions () {
+      console.log('load permission')
+
+      /*
       getPermissions().then(res => {
         const result = res.result
         this.permissions = result.map(permission => {
@@ -159,6 +162,7 @@ export default {
           return permission
         })
       })
+      */
     }
   }
 }

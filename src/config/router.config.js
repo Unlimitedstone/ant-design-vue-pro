@@ -267,14 +267,42 @@ export const asyncRouterMap = [
             ]
           }
         ]
-      }
+      },
+
+      // Exception
+      {
+        path: '/sys',
+        name: 'system',
+        component: RouteView,
+        redirect: '/sys/Role',
+        meta: { title: 'menu.system', icon: 'user', permission: ['user'] },
+        children: [
+          {
+            path: '/system/Role',
+            name: 'role',
+            component: () => import('@/views/sys/Role'),
+            meta: { title: 'menu.system.role', permission: ['user'] }
+          },
+          {
+            path: '/system/Role',
+            name: 'user',
+            component: () => import('@/views/sys/Role'),
+            meta: { title: 'menu.system.user', permission: ['user'] }
+          },
+          {
+            path: '/system/Log',
+            name: 'log',
+            component: () => import('@/views/sys/Log'),
+            meta: { title: 'menu.system.log', permission: ['user'] }
+          }
+        ]
+      },
 
       // other
-      /*
       {
         path: '/other',
         name: 'otherPage',
-        component: PageView,
+        component: RouteView,
         meta: { title: '其他组件', icon: 'slack', permission: [ 'dashboard' ] },
         redirect: '/other/icon-selector',
         children: [
@@ -330,7 +358,6 @@ export const asyncRouterMap = [
           }
         ]
       }
-      */
     ]
   },
   {
