@@ -2,14 +2,14 @@ import request from '@/utils/request'
 
 export function getAllRoles () {
   return request({
-    url: '/role/all',
+    url: '/role/getAll',
     method: 'get'
   })
 }
 
 export function createRole (data) {
   return request({
-    url: '/role',
+    url: '/role/create',
     method: 'post',
     data
   })
@@ -17,7 +17,7 @@ export function createRole (data) {
 
 export function updateRole (data) {
   return request({
-    url: '/role',
+    url: '/role/update',
     method: 'put',
     data
   })
@@ -25,7 +25,7 @@ export function updateRole (data) {
 
 export function deleteRole (data) {
   return request({
-    url: '/role',
+    url: '/role/del',
     method: 'delete',
     data
   })
@@ -33,7 +33,7 @@ export function deleteRole (data) {
 
 export function getRoles (param) {
   return request({
-    url: '/role',
+    url: '/role/get',
     method: 'get',
     params: param
   })

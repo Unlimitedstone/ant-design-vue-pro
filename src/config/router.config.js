@@ -278,19 +278,19 @@ export const asyncRouterMap = [
         meta: { title: 'menu.system', icon: 'user', permission: ['user'] },
         children: [
           {
-            path: '/system/Role',
+            path: '/sys/Role',
             name: 'role',
             component: () => import('@/views/sys/Role'),
             meta: { title: 'menu.system.role', permission: ['user'] }
           },
-          {
-            path: '/system/Role',
+          /* {
+            path: '/sys/Role',
             name: 'user',
             component: () => import('@/views/sys/Role'),
             meta: { title: 'menu.system.user', permission: ['user'] }
-          },
+          }, */
           {
-            path: '/system/Log',
+            path: '/sys/Log',
             name: 'log',
             component: () => import('@/views/sys/Log'),
             meta: { title: 'menu.system.log', permission: ['user'] }

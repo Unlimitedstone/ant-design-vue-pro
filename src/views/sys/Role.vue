@@ -1,17 +1,17 @@
 <template>
   <a-card :bordered="false" class="card-area">
     <div class="table-page-search-wrapper">
-      <a-form layout="inline" @keyup.enter.native="searchQuery">
+      <a-form ref="dataForm" :model="Role" layout="inline" @keyup.enter.native="searchQuery">
         <a-row :gutter="24">
           <a-col :md="8" :sm="24">
             <a-form-item label="角色名称">
-              <a-input placeholder="请输入" />
+              <a-input v-model="Role.name" placeholder="请输入" />
             </a-form-item>
           </a-col>
           <a-col :md="8" :sm="24">
             <span class="table-page-search-submitButtons">
-              <a-button type="primary">查询</a-button>
-              <a-button style="margin-left: 8px">重置</a-button>
+              <a-button type="primary" @click="searchQuery()">查询</a-button>
+              <a-button style="margin-left: 8px" @click="() => this.Role = {}">重置</a-button>
             </span>
           </a-col>
         </a-row>
@@ -19,15 +19,15 @@
     </div>
 
     <a-table
-      ref="table"
       size="middle"
-      rowKey="id"
+      row-key="id"
       :columns="columns"
-      :dataSource="dataSource"
-      :pagination="ipagination"
+      :data-source="loadData"
+      :pagination="{ pageSize: 20 }"
+      bordered
       :loading="loading"
-      :rowSelection="{selectedRowKeys: selectedRowKeys, onChange: onSelectChange}"
-      @change="handleTableChange">
+      :expandedRowKeys="expandedRowKeys"
+    >
 
       <span slot="action" slot-scope="text, record">
         <a @click="handleEdit(record)">编辑</a>
@@ -55,18 +55,22 @@
 </template>
 
 <script>
-// import { createRole, deleteRole, getRoles, updateRole } from '@/api/role'
-import { STable } from '@/components'
-
+import { getAllRoles, getRoles } from '@/api/role'
 export default {
-  components: { STable },
+  components: { },
   name: 'Role',
   data () {
     return {
       description: '角色管理页面',
-      queryParam: { roleName: '' },
+      // queryParam: { roleName: '' },
+      loadData: [],
+      Role: {
+        name: ''
+      },
+      loading: false,
+      expandedRowKeys: [],
       columns: [
-        {
+         {
           title: '#',
           dataIndex: '',
           key: 'rowIndex',
@@ -76,13 +80,44 @@ export default {
             return parseInt(index) + 1
           }
         },
-        { title: '角色名称', align: 'center', dataIndex: 'roleName' },
-        { title: '角色编码', align: 'center', dataIndex: 'roleCode' },
-        { title: '创建时间', align: 'center', dataIndex: 'createTime' },
-        { title: '操作', align: 'center', dataIndex: 'action' }
+        { title: '角色名称', align: 'center', dataIndex: 'name' },
+        { title: '角色编码', align: 'center', dataIndex: 'remark' },
+        { title: '权限', align: 'center', dataIndex: 'roleType' },
+        { title: '操作', align: 'center', dataIndex: 'action', scopedSlots: { customRender: 'action' } }
+
       ]
     }
+  },
+  computed: {
+    // 非声明式渲染， 重新加载不会执行
+  },
+  created () {
+    this.fetchData()
+  },
+  methods: {
+    fetchData () {
+      this.loading = true
+      getAllRoles().then(res => {
+        // this.expandedRowKeys = res.result.data.map(item => item.id)
+        this.loadData = res.result.data
+      }).finally(() => {
+        this.loading = false
+      })
+    },
+    handleEdit (record) {
+      console.log(record)
+    },
+    searchQuery () {
+      this.loading = true
+      getRoles(this.Role).then(res => {
+        console.log(this.Role)
+        this.loadData = res.result.data
+      }).finally(() => {
+        this.loading = false
+      })
+    }
   }
+
 }
 </script>
 
