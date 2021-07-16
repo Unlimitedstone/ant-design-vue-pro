@@ -175,8 +175,8 @@ export default {
       const {
         form: { validateFields },
         state,
-        customActiveKey,
-        Login
+        customActiveKey
+        , Login
       } = this
 
       state.loginBtn = true
@@ -190,7 +190,13 @@ export default {
           delete loginParams.username
           loginParams[!state.loginType ? 'email' : 'username'] = values.username
           loginParams.password = md5(values.password)
-          Login(loginParams)
+            /* login(loginParams)
+            .then((res) => this.loginSuccess(res))
+            .catch((err) => this.requestFailed(err))
+            .finally(() => {
+              state.loginBtn = false
+            }) */
+              Login(loginParams)
             .then((res) => this.loginSuccess(res))
             .catch(err => this.requestFailed(err))
             .finally(() => {

@@ -51,26 +51,134 @@
       </span>
 
     </a-table>
+
+    <a-modal
+      title="操作"
+      style="top: 20px;"
+      :width="800"
+      v-model="visible"
+      @ok="handleOk"
+    >
+      <a-form class="permission-form" :form="form">
+        <a-form-item>
+          <a-input
+            hidden="hidden"
+            v-decorator="['id']"/>
+        </a-form-item>
+        <a-form-item
+          :labelCol="labelCol"
+          :wrapperCol="wrapperCol"
+          label="角色名称"
+          hasFeedback
+          validateStatus="success"
+        >
+          <a-input
+            placeholder="角色名称"
+            disabled="disabled"
+            v-decorator="['name']"
+          />
+        </a-form-item>
+
+        <a-form-item
+          :labelCol="labelCol"
+          :wrapperCol="wrapperCol"
+          label="角色编码"
+          hasFeedback
+          validateStatus="success"
+        >
+          <a-input
+            placeholder="起一个名字"
+            v-decorator="['name']"
+          />
+        </a-form-item>
+
+        <a-form-item
+          :labelCol="labelCol"
+          :wrapperCol="wrapperCol"
+          label="状态"
+          hasFeedback
+          validateStatus="warning"
+        >
+          <a-select v-decorator="['status', { initialValue: 1 }]">
+            <a-select-option :value="1">正常</a-select-option>
+            <a-select-option :value="2">禁用</a-select-option>
+          </a-select>
+        </a-form-item>
+
+        <a-form-item
+          :labelCol="labelCol"
+          :wrapperCol="wrapperCol"
+          label="描述"
+          hasFeedback
+        >
+          <a-textarea
+            :rows="5"
+            placeholder="..."
+            id="describe"
+            v-decorator="['remark']"
+          />
+        </a-form-item>
+
+        <a-divider>拥有权限</a-divider>
+        <template v-for="permission in permissions">
+          <a-form-item
+            class="permission-group"
+            v-if="permission.actionsOptions && permission.actionsOptions.length > 0"
+            :labelCol="labelCol"
+            :wrapperCol="wrapperCol"
+            :key="permission.permissionId"
+            :label="permission.permissionName"
+          >
+            <a-checkbox>全选</a-checkbox>
+            <a-checkbox-group
+              v-decorator="[`permissions.${permission.permissionId}`]"
+              :options="permission.actionsOptions" />
+          </a-form-item>
+        </template>
+
+      </a-form>
+    </a-modal>
+
   </a-card>
 </template>
 
 <script>
 import { getAllRoles, getRoles } from '@/api/role'
+import { PERMISSION_ENUM } from '@/core/permission/permission'
+import pick from 'lodash.pick'
+
+const STATUS = {
+  1: '启用',
+  2: '禁用'
+}
+
 export default {
-  components: { },
+  components: {},
   name: 'Role',
   data () {
     return {
+      visible: false,
+      labelCol: {
+        xs: { span: 24 },
+        sm: { span: 5 }
+      },
+      wrapperCol: {
+        xs: { span: 24 },
+        sm: { span: 16 }
+      },
       description: '角色管理页面',
       // queryParam: { roleName: '' },
       loadData: [],
+      // form.createForm 没有这个无法使用this.form.setFieldsValue
+      form: this.$form.createForm(this),
       Role: {
         name: ''
       },
       loading: false,
+      permissions: [],
       expandedRowKeys: [],
       columns: [
-         {
+        {
           title: '#',
           dataIndex: '',
           key: 'rowIndex',
@@ -91,6 +199,15 @@ export default {
   computed: {
     // 非声明式渲染， 重新加载不会执行
   },
+  filters: {
+    statusFilter (key) {
+      return STATUS[key]
+    },
+    permissionFilter (key) {
+      const permission = PERMISSION_ENUM[key]
+      return permission && permission.label
+    }
+  },
   created () {
     this.fetchData()
   },
@@ -105,7 +222,40 @@ export default {
       })
     },
     handleEdit (record) {
-      console.log(record)
+      this.visible = true
+      console.log('record', record)
+
+      const checkboxGroup = {}
+      this.permissions = record.permissions.map(permission => {
+        const groupKey = `permissions.${permission.permissionId}`
+        checkboxGroup[groupKey] = permission.actionList
+        const actionsOptions = permission.actionEntitySet.map(action => {
+          return {
+            label: action.describe,
+            value: action.action,
+            defaultCheck: action.defaultCheck
+          }
+        })
+        return {
+          ...permission,
+          actionsOptions
+        }
+      })
+
+      this.$nextTick(() => {
+        console.log('permissions', this.permissions)
+        console.log('checkboxGroup', checkboxGroup)
+
+        this.form.setFieldsValue(pick(record, ['id', 'remark', 'status', 'describe', 'name']))
+        this.form.setFieldsValue(checkboxGroup)
+      })
+    },
+    handleOk (e) {
+      e.preventDefault()
+      this.form.validateFields((err, values) => {
+        console.log(err, values)
+        this.visible = false
+      })
     },
     searchQuery () {
       this.loading = true
