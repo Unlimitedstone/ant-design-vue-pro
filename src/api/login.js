@@ -1,5 +1,5 @@
 import request from '@/utils/request'
-import axios from '@/utils/axios'
+// import axios from '@/utils/axios'
 
 const userApi = {
   Login: '/auth/login',
@@ -26,17 +26,16 @@ const userApi = {
  * @returns {*}
  */
 export function login (parameter) {
-  /* return request({
+   return request({
     url: userApi.Login,
     method: 'post',
     data: parameter
-  }) */
-  console.log('http login', parameter)
-  return axios({
-    url: 'http://127.0.0.1:8081/icb/login',
-    method: 'post',
-    data: parameter
   })
+  // return axios({
+  //   url: 'http://127.0.0.1:8080/icb/login',
+  //   method: 'post',
+  //   data: parameter
+  // })
 }
 
 export function getSmsCaptcha (parameter) {
