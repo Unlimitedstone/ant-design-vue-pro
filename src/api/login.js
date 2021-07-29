@@ -27,7 +27,7 @@ const userApi = {
  */
 export function login (parameter) {
    return request({
-    url: userApi.Login,
+    url: 'http://127.0.0.1:8080/icb/login',
     method: 'post',
     data: parameter
   })

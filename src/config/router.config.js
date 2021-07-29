@@ -283,12 +283,12 @@ export const asyncRouterMap = [
             component: () => import('@/views/sys/Role'),
             meta: { title: 'menu.system.role', permission: ['user'] }
           },
-          /* {
-            path: '/sys/Role',
-            name: 'user',
-            component: () => import('@/views/sys/Role'),
-            meta: { title: 'menu.system.user', permission: ['user'] }
-          }, */
+           {
+            path: '/sys/ResourcesNew',
+            name: 'resources',
+            component: () => import('@/views/sys/ResourcesNew'),
+            meta: { title: 'menu.system.resources', permission: ['user'] }
+          },
           {
             path: '/sys/Log',
             name: 'log',

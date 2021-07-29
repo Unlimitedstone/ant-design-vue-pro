@@ -38,6 +38,7 @@ export default {
     'menu.account.logout': '退出登录',
     'menu.system': '系统管理',
     'menu.system.role': '角色管理',
+    'menu.system.resources': '资源管理',
     'menu.system.user': '用户管理',
     'menu.system.log': '系统日志'
 }
