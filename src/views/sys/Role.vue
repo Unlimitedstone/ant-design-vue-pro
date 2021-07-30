@@ -63,7 +63,7 @@
         <a-form-item>
           <a-input
             hidden="hidden"
-            v-decorator="['id']"/>
+            v-decorator="['id']" />
         </a-form-item>
         <a-form-item
           :labelCol="labelCol"
@@ -74,7 +74,6 @@
         >
           <a-input
             placeholder="角色名称"
-            disabled="disabled"
             v-decorator="['name']"
           />
         </a-form-item>
@@ -87,8 +86,9 @@
           validateStatus="success"
         >
           <a-input
-            placeholder="起一个名字"
-            v-decorator="['name']"
+            placeholder="起一个名字(唯一)"
+            disabled="disabled"
+            v-decorator="['code']"
           />
         </a-form-item>
 
@@ -99,9 +99,9 @@
           hasFeedback
           validateStatus="warning"
         >
-          <a-select v-decorator="['status', { initialValue: 1 }]">
-            <a-select-option :value="1">正常</a-select-option>
-            <a-select-option :value="2">禁用</a-select-option>
+          <a-select v-decorator="['status', { initialValue: 0 }]">
+            <a-select-option :value="0">启用</a-select-option>
+            <a-select-option :value="1">禁用</a-select-option>
           </a-select>
         </a-form-item>
 
@@ -114,8 +114,8 @@
           <a-textarea
             :rows="5"
             placeholder="..."
-            id="describe"
-            v-decorator="['remark']"
+            id="description"
+            v-decorator="['description']"
           />
         </a-form-item>
 
@@ -143,7 +143,7 @@
 </template>
 
 <script>
-import { getAllRoles, getRoles } from '@/api/role'
+import { getAllRoles, getRoles, getMenuByRoleId } from '@/api/role'
 import { PERMISSION_ENUM } from '@/core/permission/permission'
 import pick from 'lodash.pick'
 
@@ -189,8 +189,20 @@ export default {
           }
         },
         { title: '角色名称', align: 'center', dataIndex: 'name' },
-        { title: '角色编码', align: 'center', dataIndex: 'remark' },
-        { title: '权限', align: 'center', dataIndex: 'roleType' },
+        { title: '角色编码', align: 'center', dataIndex: 'code' },
+        {
+          title: '权限',
+          align: 'center',
+          dataIndex: 'roleLevel'
+        },
+        {
+          title: '是否启用',
+          align: 'center',
+          dataIndex: 'status',
+          customRender: function (v, r, index) {
+            return v === 0 ? <font color='red'>启用</font> : <font color='#a9a9a9'>禁用</font>
+          }
+        },
         { title: '操作', align: 'center', dataIndex: 'action', scopedSlots: { customRender: 'action' } }
 
       ]
@@ -216,7 +228,7 @@ export default {
       this.loading = true
       getAllRoles().then(res => {
         // this.expandedRowKeys = res.result.data.map(item => item.id)
-        this.loadData = res.result.data
+        this.loadData = res.data
       }).finally(() => {
         this.loading = false
       })
@@ -224,10 +236,14 @@ export default {
     handleEdit (record) {
       this.visible = true
       console.log('record', record)
-
+      getMenuByRoleId(record.id).then(res => {
+        record.permission = res.data
+      })
       const checkboxGroup = {}
       this.permissions = record.permissions.map(permission => {
+        console.log('permission', permission)
         const groupKey = `permissions.${permission.permissionId}`
+        console.log('permissions.{permission.permissionId}', groupKey)
         checkboxGroup[groupKey] = permission.actionList
         const actionsOptions = permission.actionEntitySet.map(action => {
           return {
@@ -243,10 +259,9 @@ export default {
       })
 
       this.$nextTick(() => {
-        console.log('permissions', this.permissions)
+        // console.log('permissions', this.permissions)
         console.log('checkboxGroup', checkboxGroup)
-
-        this.form.setFieldsValue(pick(record, ['id', 'remark', 'status', 'describe', 'name']))
+        this.form.setFieldsValue(pick(record, ['id', 'code', 'status', 'description', 'name']))
         this.form.setFieldsValue(checkboxGroup)
       })
     },

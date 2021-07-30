@@ -286,7 +286,7 @@ export const asyncRouterMap = [
            {
             path: '/sys/ResourcesNew',
             name: 'resources',
-            component: () => import('@/views/sys/ResourcesNew'),
+            component: () => import('@/views/sys/resource/ResourcesNew'),
             meta: { title: 'menu.system.resources', permission: ['user'] }
           },
           {

@@ -18,19 +18,18 @@
       </a-form>
     </div>
 
+    <template>
+      <a-button type="dash" icon="plus" @click="$refs.addForm.add()">新增菜单</a-button>
+    </template>
     <a-table
-      size="middle"
-      row-key="id"
+      :rowkey="(record) => record.id"
       :columns="columns"
       :data-source="loadData"
-      bordered
+      :bordered="true"
+      :indentsize="13"
       :loading="loading"
-      :expandRowByClick="true"
+      :defaultExpandAllRows="false"
     >
-
-      <!--      <template slot="operator">-->
-      <!--        <a-button type="primary" icon="plus" @click="$refs.addForm.add()">新增菜单</a-button>-->
-      <!--      </template>-->
       <span slot="icon" slot-scope="text">
         <div v-if="text != null && text != ''">
           <a-icon :type="text"/>
@@ -152,7 +151,8 @@
 <script>
 import { getResourcesList } from '@/api/sys'
 import { PERMISSION_ENUM } from '@/core/permission/permission'
-// import pick from 'lodash.pick'
+import addForm from './addForm'
+import editForm from './editForm'
 
 const STATUS = {
   1: '启用',
@@ -160,7 +160,10 @@ const STATUS = {
 }
 
 export default {
-  components: {},
+  components: {
+    addForm,
+    editForm
+  },
   name: 'Role',
   data () {
     return {
@@ -186,28 +189,24 @@ export default {
       columns: [
         // {
         //   title: 'id',
-        //   dataIndex: '',
-        //   key: 'rowIndex',
-        //   width: 60,
         //   align: 'center',
-        //   customRender: function (t, r, index) {
-        //     return parseInt(index) + 1
-        //   }
+        //   hidden: 'true'
         // },
-        { title: '菜单名称', align: 'center', dataIndex: 'name' },
+        { title: '菜单名称', align: 'center', dataIndex: 'name', width: '20%', colspan: 0 },
         {
           title: '菜单类型',
           align: 'center',
           dataIndex: 'type',
+          width: '10%',
           customRender: function (t, r, index) {
             return t === 0 ? '目录' : t === 1 ? '菜单' : '按钮'
           }
         },
-        { title: '图标', align: 'center', dataIndex: 'icon', scopedSlots: { customRender: 'icon' } },
-        { title: '组件', align: 'center', dataIndex: 'component' },
-        { title: '路由地址', align: 'center', dataIndex: 'router' },
-        { title: '排序', align: 'center', dataIndex: 'sort' },
-        { title: '操作', align: 'center', dataIndex: 'action', scopedSlots: { customRender: 'action' } }
+        { title: '图标', align: 'center', dataIndex: 'icon', scopedSlots: { customRender: 'icon' }, width: '10%' },
+        { title: '组件', align: 'center', dataIndex: 'component', width: '20%' },
+        { title: '路由地址', align: 'center', dataIndex: 'router', width: '20%' },
+        { title: '排序', align: 'center', dataIndex: 'sort', width: '10%' },
+        { title: '操作', align: 'center', dataIndex: 'action', scopedSlots: { customRender: 'action' }, width: '10%' }
 
       ]
     }
@@ -304,5 +303,7 @@ export default {
 </script>
 
 <style scoped>
-
+.table-operator {
+  margin-bottom: 18px;
+}
 </style>

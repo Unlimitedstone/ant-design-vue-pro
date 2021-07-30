@@ -1967,7 +1967,7 @@ const roleOld = () => {
 }
 
 Mock.mock(/\/org\/tree/, 'get', orgTree)
-Mock.mock(/\/role/, 'get', roleOld)
+Mock.mock(/\/role\/1111/, 'get', roleOld)
 Mock.mock(/\/role\/getAll/, 'get', role)
 Mock.mock(/\/permission\/no-pager/, 'get', permissionNoPager)
 Mock.mock(/\/permission/, 'get', permissions)

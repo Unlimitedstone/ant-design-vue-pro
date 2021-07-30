@@ -2,7 +2,7 @@ import request from '@/utils/request'
 
 export function getAllRoles () {
   return request({
-    url: '/role/getAll',
+    url: 'http://127.0.0.1:8080/icb/role/listnew',
     method: 'get'
   })
 }
@@ -36,5 +36,13 @@ export function getRoles (param) {
     url: '/role/get',
     method: 'get',
     params: param
+  })
+}
+
+export function getMenuByRoleId (param) {
+  return request({
+    url: 'http://127.0.0.1:8080/icb/role/menuById',
+    method: 'get',
+    params: { roleId: param }
   })
 }
