@@ -267,7 +267,9 @@ export default {
 
       const checkboxGroup = {}
       this.permissions = record.permissions.map(permission => {
+        console.log('permission', permission)
         const groupKey = `permissions.${permission.permissionId}`
+        console.log('{permission.permissionId}', groupKey)
         checkboxGroup[groupKey] = permission.actionList
         const actionsOptions = permission.actionEntitySet.map(action => {
           return {

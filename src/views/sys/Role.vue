@@ -59,7 +59,7 @@
       v-model="visible"
       @ok="handleOk"
     >
-      <a-form class="permission-form" :form="form">
+      <a-form class="permission-form" :form="form" :spinnig="formLoading">
         <a-form-item>
           <a-input
             hidden="hidden"
@@ -120,22 +120,35 @@
         </a-form-item>
 
         <a-divider>拥有权限</a-divider>
-        <template v-for="permission in permissions">
-          <a-form-item
-            class="permission-group"
-            v-if="permission.actionsOptions && permission.actionsOptions.length > 0"
-            :labelCol="labelCol"
-            :wrapperCol="wrapperCol"
-            :key="permission.permissionId"
-            :label="permission.permissionName"
-          >
-            <a-checkbox>全选</a-checkbox>
-            <a-checkbox-group
-              v-decorator="[`permissions.${permission.permissionId}`]"
-              :options="permission.actionsOptions" />
-          </a-form-item>
-        </template>
-
+        <a-tree
+          v-model="checkedKeys"
+          multiple
+          checkable
+          :auto-expand-parent="autoExpandParent"
+          :expanded-keys="expandedKeys"
+          :tree-data="menuTreeData"
+          :selected-keys="selectedKeys"
+          :replaceFields="replaceFields"
+          @expand="onExpand"
+          @check="onCheck"
+        />
+        <!--
+          <template
+          v-for="permission in permissions">-->
+        <!--          <a-form-item-->
+        <!--            class="permission-group"-->
+        <!--            v-if="permission.actionsOptions && permission.actionsOptions.length > 0"-->
+        <!--            :labelCol="labelCol"-->
+        <!--            :wrapperCol="wrapperCol"-->
+        <!--            :key="permission.permissionId"-->
+        <!--            :label="permission.permissionName"-->
+        <!--          >-->
+        <!--            <a-checkbox>全选</a-checkbox>-->
+        <!--            <a-checkbox-group-->
+        <!--              v-decorator="[`permissions.${permission.permissionId}`]"-->
+        <!--              :options="permission.actionsOptions" />-->
+        <!--          </a-form-item>-->
+        <!--        </template>-->
       </a-form>
     </a-modal>
 
@@ -146,6 +159,7 @@
 import { getAllRoles, getRoles, getMenuByRoleId } from '@/api/role'
 import { PERMISSION_ENUM } from '@/core/permission/permission'
 import pick from 'lodash.pick'
+import { getResourcesList } from '@/api/sys'
 
 const STATUS = {
   1: '启用',
@@ -171,12 +185,23 @@ export default {
       loadData: [],
       // form.createForm 没有这个无法使用this.form.setFieldsValue
       form: this.$form.createForm(this),
+      formLoading: true,
       Role: {
         name: ''
       },
+      checkedKeys: [],
+      allMenuList: [],
+      expandedKeys: [],
+      menuTreeData: [],
+      selectedKeys: [],
+      autoExpandParent: true,
       loading: false,
       permissions: [],
       expandedRowKeys: [],
+      replaceFields: {
+        key: 'id'
+      },
+      leastChilds: [],
       columns: [
         {
           title: '#',
@@ -235,35 +260,48 @@ export default {
     },
     handleEdit (record) {
       this.visible = true
+      this.formLoading = true
       console.log('record', record)
-      getMenuByRoleId(record.id).then(res => {
-        record.permission = res.data
+      getResourcesList().then(res => {
+        this.menuTreeData = res.data
+        this.getLeastChilds(res.data)
       })
-      const checkboxGroup = {}
-      this.permissions = record.permissions.map(permission => {
-        console.log('permission', permission)
-        const groupKey = `permissions.${permission.permissionId}`
-        console.log('permissions.{permission.permissionId}', groupKey)
-        checkboxGroup[groupKey] = permission.actionList
-        const actionsOptions = permission.actionEntitySet.map(action => {
-          return {
-            label: action.describe,
-            value: action.action,
-            defaultCheck: action.defaultCheck
-          }
-        })
-        return {
-          ...permission,
-          actionsOptions
+      this.expandedMenuKeys(record.id)
+      this.form.setFieldsValue(pick(record, ['id', 'code', 'status', 'description', 'name']))
+    },
+    getLeastChilds (data) {
+      for (let i = 0; i < data.length; i++) {
+        this.pushLeastChilds(data[i])
+      }
+    },
+    expandedMenuKeys (roleId) {
+      getMenuByRoleId(roleId).then(res => {
+        this.pickCheckedKeys(res.data)
+        this.commitKeys = res.data
+        this.formLoading = false
+      })
+    },
+    pushLeastChilds (e) {
+      if (e.children.length > 0) {
+        this.getLeastChilds(e.children)
+        return
+      }
+      this.leastChilds.push(e.id)
+    },
+    pickCheckedKeys (data) {
+      for (let i = 0; i < data.length; i++) {
+        if (this.leastChilds.includes(data[i])) {
+          this.checkedKeys.push(data[i])
         }
-      })
-
-      this.$nextTick(() => {
-        // console.log('permissions', this.permissions)
-        console.log('checkboxGroup', checkboxGroup)
-        this.form.setFieldsValue(pick(record, ['id', 'code', 'status', 'description', 'name']))
-        this.form.setFieldsValue(checkboxGroup)
-      })
+      }
+    },
+    onExpand (expandedKeys) {
+      this.expandedKeys = expandedKeys
+      this.autoExpandParent = false
+    },
+    onCheck (checkedKeys, info) {
+      this.checkedKeys = checkedKeys
+      this.commitKeys = checkedKeys.concat(info.halfCheckedKeys)
     },
     handleOk (e) {
       e.preventDefault()
